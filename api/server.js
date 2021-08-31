@@ -101,10 +101,15 @@ server.put("/api/users/:id", async (req, res) => {
   const { id } = req.params;
   const changes = req.body;
   try {
-    if (req.params.id !== id) {
+    const possibleUser = await User.findById(req.params.id);
+    if (!possibleUser) {
       res
         .status(404)
         .json({ message: "The user with the specified ID does not exist" });
+    } else if (!changes.name || !changes.bio) {
+      res
+        .status(400)
+        .json({ message: "Please provide name and bio for the user" });
     } else {
       const result = await User.update(id, changes);
       res.status(200).json(result);
